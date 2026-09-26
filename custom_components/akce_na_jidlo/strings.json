@@ -1,0 +1,119 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Food deals",
+        "description": "Name the integration and choose the country to search deals in.",
+        "data": {
+          "name": "Name",
+          "language": "Card and text language",
+          "country": "Country"
+        }
+      },
+      "settings": {
+        "title": "Settings – {country}",
+        "description": "You type the groceries in the card (orange basket). Here you set where and how to search.",
+        "data": {
+          "show_map": "Show a map of the stores in the card",
+          "location_entity": "Location for finding stores (empty = HA home)",
+          "max_distance_km": "Store search radius",
+          "nearby_only": "Only stores with a branch within the radius",
+          "shop_type": "Store type",
+          "results_per_item": "Deals per grocery item",
+          "sort_by": "Sort deals by",
+          "exclude_loyalty": "Skip deals that need a loyalty card/app",
+          "include_upcoming": "Also show upcoming deals (from new flyers)",
+          "sources": "Deal websites",
+          "custom_urls": "Custom URLs (one per line, {query} / {slug} = searched item)"
+        },
+        "data_description": {
+          "show_map": "The card shows a map with numbered stores below the store list. Can be turned off in the card as well.",
+          "location_entity": "Phone or person – stores are searched around it. Outside the selected country, home is used.",
+          "nearby_only": "Deals from chains without a branch within the radius are hidden."
+        }
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Food deals – {country}",
+        "description": "You type the groceries in the card (orange basket). Here you set where and how to search.",
+        "data": {
+          "language": "Card and text language",
+          "show_map": "Show a map of the stores in the card",
+          "location_entity": "Location for finding stores (empty = HA home)",
+          "max_distance_km": "Store search radius",
+          "nearby_only": "Only stores with a branch within the radius",
+          "shop_type": "Store type",
+          "results_per_item": "Deals per grocery item",
+          "sort_by": "Sort deals by",
+          "exclude_loyalty": "Skip deals that need a loyalty card/app",
+          "include_upcoming": "Also show upcoming deals (from new flyers)",
+          "sources": "Deal websites",
+          "custom_urls": "Custom URLs (one per line, {query} / {slug} = searched item)"
+        },
+        "data_description": {
+          "show_map": "The card shows a map with numbered stores below the store list. Can be turned off in the card as well.",
+          "location_entity": "Phone or person – stores are searched around it. Outside the selected country, home is used.",
+          "nearby_only": "Deals from chains without a branch within the radius are hidden."
+        }
+      }
+    }
+  },
+  "selector": {
+    "language": {
+      "options": {
+        "auto": "Automatic (HA language)",
+        "cs": "Čeština",
+        "sk": "Slovenčina",
+        "en": "English"
+      }
+    },
+    "shop_type": {
+      "options": {
+        "all": "🏪+🛒 Physical and online",
+        "physical": "🏪 Physical stores only",
+        "online": "🛒 Online only"
+      }
+    },
+    "sort_by": {
+      "options": {
+        "price": "Package price",
+        "unit": "Price per kg / l / pc",
+        "distance": "Nearest store"
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "results": {
+        "name": "Search results"
+      },
+      "best_shop": {
+        "name": "Where to shop"
+      }
+    }
+  },
+  "services": {
+    "search": {
+      "name": "Search groceries on sale",
+      "description": "Finds where the given groceries are on sale cheapest in nearby stores. The result is in the Search results sensor and in the service response.",
+      "fields": {
+        "items": {
+          "name": "Groceries",
+          "description": "One or more items separated by comma or new line, e.g. “milk, bread, butter”. Empty = repeat the last search."
+        },
+        "config_entry_id": {
+          "name": "Integration",
+          "description": "Which instance to use (Czechia / Slovakia). Empty = first."
+        }
+      }
+    }
+  },
+  "exceptions": {
+    "no_entry": {
+      "message": "The Food deals integration is not loaded."
+    }
+  }
+}

@@ -1,0 +1,119 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Akcie na jedlo",
+        "description": "Pomenujte integráciu a vyberte krajinu, v ktorej sa majú hľadať akcie.",
+        "data": {
+          "name": "Názov",
+          "language": "Jazyk karty a textov",
+          "country": "Krajina"
+        }
+      },
+      "settings": {
+        "title": "Nastavenia – {country}",
+        "description": "Potraviny zadávate v karte (oranžový košík). Tu nastavíte, kde a ako sa majú hľadať.",
+        "data": {
+          "show_map": "Zobrazovať v karte mapu obchodov",
+          "location_entity": "Poloha pre hľadanie obchodov (prázdne = domov HA)",
+          "max_distance_km": "Okruh hľadania obchodov",
+          "nearby_only": "Len obchody, ktoré majú pobočku v okruhu",
+          "shop_type": "Typ obchodu",
+          "results_per_item": "Počet akcií na jednu potravinu",
+          "sort_by": "Zoradenie akcií",
+          "exclude_loyalty": "Vynechať akcie len s vernostnou kartou/aplikáciou",
+          "include_upcoming": "Zobraziť aj pripravované akcie (z nových letákov)",
+          "sources": "Weby s akciami",
+          "custom_urls": "Vlastné URL (jedna na riadok, {query} / {slug} = hľadaná potravina)"
+        },
+        "data_description": {
+          "show_map": "Karta pod zoznamom obchodov ukáže mapu s očíslovanými obchodmi. Dá sa vypnúť aj v karte.",
+          "location_entity": "Telefón alebo osoba – obchody sa hľadajú okolo nej. Keď je mimo zvolenej krajiny, použije sa domov.",
+          "nearby_only": "Akcie z reťazcov, ktoré v okruhu nemajú pobočku, sa nezobrazia."
+        }
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Akcie na jedlo – {country}",
+        "description": "Potraviny zadávate v karte (oranžový košík). Tu nastavíte, kde a ako sa majú hľadať.",
+        "data": {
+          "language": "Jazyk karty a textov",
+          "show_map": "Zobrazovať v karte mapu obchodov",
+          "location_entity": "Poloha pre hľadanie obchodov (prázdne = domov HA)",
+          "max_distance_km": "Okruh hľadania obchodov",
+          "nearby_only": "Len obchody, ktoré majú pobočku v okruhu",
+          "shop_type": "Typ obchodu",
+          "results_per_item": "Počet akcií na jednu potravinu",
+          "sort_by": "Zoradenie akcií",
+          "exclude_loyalty": "Vynechať akcie len s vernostnou kartou/aplikáciou",
+          "include_upcoming": "Zobraziť aj pripravované akcie (z nových letákov)",
+          "sources": "Weby s akciami",
+          "custom_urls": "Vlastné URL (jedna na riadok, {query} / {slug} = hľadaná potravina)"
+        },
+        "data_description": {
+          "show_map": "Karta pod zoznamom obchodov ukáže mapu s očíslovanými obchodmi. Dá sa vypnúť aj v karte.",
+          "location_entity": "Telefón alebo osoba – obchody sa hľadajú okolo nej. Keď je mimo zvolenej krajiny, použije sa domov.",
+          "nearby_only": "Akcie z reťazcov, ktoré v okruhu nemajú pobočku, sa nezobrazia."
+        }
+      }
+    }
+  },
+  "selector": {
+    "language": {
+      "options": {
+        "auto": "Automaticky (podľa jazyka HA)",
+        "cs": "Čeština",
+        "sk": "Slovenčina",
+        "en": "English"
+      }
+    },
+    "shop_type": {
+      "options": {
+        "all": "🏪+🛒 Kamenné aj online",
+        "physical": "🏪 Len kamenné obchody",
+        "online": "🛒 Len online"
+      }
+    },
+    "sort_by": {
+      "options": {
+        "price": "Cena balenia",
+        "unit": "Cena za kg / l / ks",
+        "distance": "Najbližší obchod"
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "results": {
+        "name": "Výsledky hľadania"
+      },
+      "best_shop": {
+        "name": "Kam na nákup"
+      }
+    }
+  },
+  "services": {
+    "search": {
+      "name": "Hľadať potraviny v akcii",
+      "description": "Nájde, kde sú zadané potraviny v okolitých obchodoch v akcii najlacnejšie.",
+      "fields": {
+        "items": {
+          "name": "Potraviny",
+          "description": "Jedna alebo viac potravín oddelených čiarkou alebo novým riadkom, napr. „mlieko, chlieb, maslo“. Prázdne = zopakovať posledné hľadanie."
+        },
+        "config_entry_id": {
+          "name": "Integrácia",
+          "description": "Ktorú inštanciu použiť (Česko / Slovensko). Prázdne = prvá."
+        }
+      }
+    }
+  },
+  "exceptions": {
+    "no_entry": {
+      "message": "Integrácia Akcie na jedlo nie je načítaná."
+    }
+  }
+}

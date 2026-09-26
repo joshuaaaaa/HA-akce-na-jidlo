@@ -1,0 +1,13 @@
+search:
+  fields:
+    items:
+      required: false
+      example: "mléko, chleba, máslo"
+      selector:
+        text:
+          multiline: true
+    config_entry_id:
+      required: false
+      selector:
+        config_entry:
+          integration: akce_na_jidlo
