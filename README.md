@@ -155,6 +155,16 @@ automation:
 > vyzkoušené na jejich skutečném obsahu (parser kupi.cz je převzatý z Akce na pivo). Když některý
 > zdroj nic nevrací, zadejte funkční adresu do **Vlastní URL**.
 
+## Výkon a zatížení Home Assistantu (Raspberry Pi)
+
+- Integrace **na pozadí nic nestahuje**. Pracuje jen ve chvíli, kdy zmáčknete Hledat
+  (nebo zavoláte službu). Po startu HA nic nestahuje.
+- Zpracování stránek, filtrování akcí i přiřazení poboček běží **ve vlákně mimo hlavní
+  smyčku HA**, takže HA během hledání nezamrzne.
+- Stránka se stáhne nejvýš do 3 MB a zpracuje se z ní nejvýš 600 akcí. Jedno stažení má
+  limit 15 s a celé hledání 2 minuty. Weby, na které už nezbyde čas, se přeskočí.
+- Výsledky se na disk (SD kartu) zapisují s odstupem 30 s, ne po každém hledání.
+
 ## Upozornění a odpovědnost
 
 - **Vývojář neodpovídá za žádné problémy ani škody** vzniklé používáním integrace a karty,

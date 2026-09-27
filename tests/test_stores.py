@@ -51,3 +51,26 @@ def test_parse_and_nearest():
     assert best["osm_id"] == "node/1"
     assert best["distance_km"] < 0.5
     assert nearest_store(stores, "lidl", 50.08, 14.42) is None
+
+
+def test_nearest_by_chain_matches_nearest_store():
+    import random
+
+    from akce_na_jidlo.stores import nearest_by_chain, store_for_chain
+
+    random.seed(3)
+    brands = ["Albert", "Lidl", "Billa", "COOP", "Jednota", "Terno", "Tesco"]
+    elements = [
+        {
+            "type": "node",
+            "id": i,
+            "lat": 49.8 + random.random() * 0.5,
+            "lon": 14.2 + random.random() * 0.5,
+            "tags": {"brand": random.choice(brands)},
+        }
+        for i in range(500)
+    ]
+    stores = _parse_stores({"elements": elements}, "CZ")
+    nearest = nearest_by_chain(stores, 50.0, 14.4)
+    for chain in ("albert", "lidl", "billa", "coop", "terno", "tesco", "tesco express", "penny"):
+        assert store_for_chain(nearest, chain) == nearest_store(stores, chain, 50.0, 14.4), chain

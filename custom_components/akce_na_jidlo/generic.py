@@ -63,6 +63,8 @@ DATE_RANGE_RE = re.compile(
 )
 CARD_TAGS = ("article", "li", "div", "a", "tr", "section")
 MAX_CARD_TEXT = 500
+# víc bloků s cenou z jedné stránky nezpracováváme (šetří CPU, hlavně na Raspberry Pi)
+MAX_CARDS = 300
 
 NAME_KEYS = ("name", "title", "productName", "product_name", "nazev", "label")
 PRICE_KEYS = (
@@ -524,6 +526,8 @@ def parse_html_cards(
                     cards.setdefault(id(node), node)
                     break
             node = node.parent
+        if len(cards) >= MAX_CARDS:
+            break
 
     offers: list[dict[str, Any]] = []
     for card in cards.values():

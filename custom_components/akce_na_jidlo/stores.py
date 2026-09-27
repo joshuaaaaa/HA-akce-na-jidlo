@@ -187,6 +187,31 @@ async def reverse_geocode(session: aiohttp.ClientSession, lat: float, lon: float
     return ", ".join(part for part in (first, second) if part) or data.get("display_name", "")
 
 
+def nearest_by_chain(
+    stores: list[dict[str, Any]], lat: float, lon: float
+) -> dict[str, dict[str, Any]]:
+    """Nejbližší pobočka každého řetězce – jeden průchod přes pobočky.
+
+    Dřív se nejbližší pobočka hledala pro každou akci zvlášť (akce × pobočky), což
+    u velkého okruhu a stovek akcí trvalo sekundy.
+    """
+    best: dict[str, dict[str, Any]] = {}
+    for store in stores:
+        distance = haversine_km(lat, lon, store["latitude"], store["longitude"])
+        current = best.get(store["chain"])
+        if current is None or distance < current["distance_km"]:
+            best[store["chain"]] = {**store, "distance_km": round(distance, 2)}
+    return best
+
+
+def store_for_chain(nearest: dict[str, dict[str, Any]], chain: str) -> dict[str, Any] | None:
+    """Pobočka řetězce z výsledku nearest_by_chain (včetně aliasů, např. COOP = Jednota)."""
+    candidates = [nearest.get(chain)]
+    candidates += [nearest.get(alias) for alias in CHAIN_ALIASES.get(chain, ()) if alias != chain]
+    found = [c for c in candidates if c is not None]
+    return min(found, key=lambda c: c["distance_km"]) if found else None
+
+
 def nearest_store(
     stores: list[dict[str, Any]], chain: str, lat: float, lon: float
 ) -> dict[str, Any] | None:

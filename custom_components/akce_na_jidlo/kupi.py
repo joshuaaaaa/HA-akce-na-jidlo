@@ -74,6 +74,8 @@ MONTHS = {
 }
 
 _NUM = r"\d+(?:[,.]\d+)?"
+# víc řádků slev z jedné stránky nezpracováváme (šetří CPU, hlavně na Raspberry Pi)
+MAX_ROWS = 600
 
 LOYALTY_WORDS = (
     "cleny klubu",
@@ -345,7 +347,7 @@ def parse_offers(html: str | BeautifulSoup, source_url: str, today: date) -> lis
         headings.discard(normalize(page_title))
     offers: list[dict[str, Any]] = []
 
-    for row in soup.select(".discount_row"):
+    for row in soup.select(".discount_row", limit=MAX_ROWS):
         product_id = str(row.get("data-product") or "")
         if not product_id:
             parent = row.find_parent(attrs={"data-product-id": True})
