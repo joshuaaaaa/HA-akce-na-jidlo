@@ -89,7 +89,7 @@ view: shops        # výchozí pohled: shops (obchody) | items (potraviny)
 show_images: true  # obrázky produktů v pohledu Potraviny
 show_map: true     # mapa – zobrazí se, jen když je povolená v nastavení integrace
 map_height: 260
-map_style: auto    # auto | carto | carto_dark | osm
+map_style: auto    # auto | carto | carto_dark | osm | none (bez podkladu)
 language: ""       # "" = podle integrace / HA, nebo cs | sk | en
 ```
 
@@ -148,6 +148,14 @@ automation:
   („mléko“ místo „mléko polotučné Madeta“), nebo vypněte *Jen obchody s pobočkou v okruhu*.
 - **Obchody bez adresy.** Veřejné servery OpenStreetMap (Overpass) bývají přetížené. Karta pak
   ukáže upozornění a akce bez adres. Stačí hledat znovu za chvíli.
+- **Hláška „SSL error when loading https://a.basemaps.cartocdn.com/…“.** Nevypisuje ji
+  Home Assistant, ale prohlížeč zařízení, na kterém je ovládací panel (tablet, displej na
+  lednici, Fully Kiosk…). Zařízení neověří HTTPS certifikát serveru s mapovými dlaždicemi.
+  Nejčastěji má špatně nastavené datum a čas, nebo starý systém či WebView bez aktuálních
+  kořenových certifikátů. Na chod HA to vliv nemá. Řešení: opravit datum a čas, aktualizovat
+  Android System WebView nebo Chrome, případně v kartě nastavit `map_style: none` (mapa jen
+  se špendlíky), nebo mapu vypnout (`show_map: false`). Karta od verze 1.0.1 po třech
+  nenačtených dlaždicích podklad sama vypne, aby chyby nevyskakovaly při každém posunu mapy.
 - **Na mapě „Access blocked“.** Nepoužívejte `map_style: osm`. OpenStreetMap blokuje dlaždice
   bez hlavičky Referer, kterou HA neposílá.
 

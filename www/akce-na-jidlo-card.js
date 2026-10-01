@@ -13,7 +13,7 @@
  * Mapa se kreslí přímo z dlaždic (CARTO / OpenStreetMap) – bez externích knihoven.
  */
 
-const CARD_VERSION = "1.0.0";
+const CARD_VERSION = "1.0.1";
 const DOMAIN = "akce_na_jidlo";
 const FLAGS = { CZ: "🇨🇿", SK: "🇸🇰" };
 const I18N = {
@@ -27,7 +27,7 @@ const I18N = {
     upcoming: "Připravované akce", valid_to: "do", loyalty: "jen s kartou/aplikací", clear: "Smazat",
     stores_error: "Pobočky z OpenStreetMap se teď nepodařilo načíst – zobrazují se akce bez adres.",
     need_entity: "Zadejte entitu (senzor Výsledky hledání)", not_found_entity: "Entita nenalezena",
-    updated: "hledáno", error: "Hledání selhalo", remove: "Odebrat",
+    updated: "hledáno", no_tiles: "Mapový podklad se nepodařilo načíst", error: "Hledání selhalo", remove: "Odebrat",
   },
   sk: {
     title: "Nákupný košík v akcii", placeholder: "Napíšte potraviny, napr. mlieko, chlieb, maslo",
@@ -39,7 +39,7 @@ const I18N = {
     upcoming: "Pripravované akcie", valid_to: "do", loyalty: "len s kartou/aplikáciou", clear: "Zmazať",
     stores_error: "Pobočky z OpenStreetMap sa teraz nepodarilo načítať – zobrazujú sa akcie bez adries.",
     need_entity: "Zadajte entitu (senzor Výsledky hľadania)", not_found_entity: "Entita sa nenašla",
-    updated: "hľadané", error: "Hľadanie zlyhalo", remove: "Odobrať",
+    updated: "hľadané", no_tiles: "Mapový podklad sa nepodarilo načítať", error: "Hľadanie zlyhalo", remove: "Odobrať",
   },
   en: {
     title: "Grocery basket deals", placeholder: "Type groceries, e.g. milk, bread, butter",
@@ -51,7 +51,7 @@ const I18N = {
     upcoming: "Upcoming deals", valid_to: "until", loyalty: "loyalty card/app only", clear: "Clear",
     stores_error: "Store branches from OpenStreetMap could not be loaded – deals are shown without addresses.",
     need_entity: "Set the entity (Search results sensor)", not_found_entity: "Entity not found",
-    updated: "searched", error: "Search failed", remove: "Remove",
+    updated: "searched", no_tiles: "Map tiles could not be loaded", error: "Search failed", remove: "Remove",
   },
 };
 const LOCALES = { cs: "cs-CZ", sk: "sk-SK", en: "en-GB" };
@@ -80,7 +80,13 @@ const TILE_PROVIDERS = {
     attribution: CARTO_ATTR,
   },
   osm: { url: (z, x, y) => `https://tile.openstreetmap.org/${z}/${x}/${y}.png`, attribution: OSM_ATTR },
+  // bez podkladu – jen špendlíky (pro zařízení, která dlaždice nenačtou, např. kvůli SSL)
+  none: { url: null, attribution: "" },
 };
+// Když se po sobě nenačte tolik dlaždic (a žádná se nenačte), podklad se vypne, aby
+// zařízení s chybou SSL / bez internetu nezahlcovalo chybami při každém posunu mapy.
+const TILE_FAIL_LIMIT = 3;
+const TILE_STATE = { failed: 0, loaded: 0, broken: false };
 const TILE = 256;
 
 // Oranžový nákupní košík (SVG)
@@ -586,6 +592,7 @@ class AkceNaJidloCard extends HTMLElement {
   _tileProvider() {
     let style = this._config.map_style || "auto";
     if (style === "auto") style = this._hass?.themes?.darkMode ? "carto_dark" : "carto";
+    if (TILE_STATE.broken) return TILE_PROVIDERS.none;
     return TILE_PROVIDERS[style] || TILE_PROVIDERS.carto;
   }
 
@@ -620,7 +627,7 @@ class AkceNaJidloCard extends HTMLElement {
     const top = v.cy - height / 2;
     const n = 2 ** v.z;
     let tiles = "";
-    for (let ty = Math.floor(top / TILE); ty <= Math.floor((top + height) / TILE); ty++) {
+    for (let ty = Math.floor(top / TILE); provider.url && ty <= Math.floor((top + height) / TILE); ty++) {
       if (ty < 0 || ty >= n) continue;
       for (let tx = Math.floor(left / TILE); tx <= Math.floor((left + width) / TILE); tx++) {
         const x = ((tx % n) + n) % n;
@@ -645,7 +652,22 @@ class AkceNaJidloCard extends HTMLElement {
         <button data-zoom="-1" title="${esc(this._t("zoom_out"))}">−</button>
         <button data-fit="1" title="${esc(this._t("fit"))}">⤢</button>
       </div>
-      <div class="attribution">${provider.attribution}</div>`;
+      ${TILE_STATE.broken ? `<div class="attribution">${esc(this._t("no_tiles"))}</div>` : provider.attribution ? `<div class="attribution">${provider.attribution}</div>` : ""}`;
+    el.querySelectorAll("img.tile").forEach((img) => {
+      img.addEventListener("load", () => (TILE_STATE.loaded += 1), { once: true });
+      img.addEventListener(
+        "error",
+        () => {
+          TILE_STATE.failed += 1;
+          if (!TILE_STATE.broken && !TILE_STATE.loaded && TILE_STATE.failed >= TILE_FAIL_LIMIT) {
+            TILE_STATE.broken = true;
+            console.warn("akce-na-jidlo-card: mapový podklad se nenačítá (SSL / síť), mapa bude bez podkladu");
+            this._drawMap();
+          }
+        },
+        { once: true }
+      );
+    });
     el.querySelectorAll(".pin[data-index]").forEach((node) =>
       node.addEventListener("click", () => {
         if (!this.shadowRoot.querySelector(".shop")) {
@@ -861,6 +883,7 @@ const editorSchema = (lang) => [
               { value: "carto", label: "CARTO Voyager" },
               { value: "carto_dark", label: "CARTO Dark" },
               { value: "osm", label: "OpenStreetMap" },
+              { value: "none", label: "Bez podkladu (jen špendlíky)" },
             ],
           },
         },
